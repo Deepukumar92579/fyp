@@ -3,35 +3,34 @@ from transformers import AutoTokenizer, AutoModelForTokenClassification
 import numpy as np
 
 # Load the trained model and tokenizer
-model_path = "./fine_tuned_xlm_roberta"  # Change this if needed
+model_path = "./fine_tuned_xlm_roberta" 
 tokenizer = AutoTokenizer.from_pretrained(model_path)
 model = AutoModelForTokenClassification.from_pretrained(model_path)
 
-# Mapping from label IDs to labels
+# Mapping from label IDs to labels (verify from the output during model training)
 id_to_label = {
-    0: "O",
+    2: "O",
     1: "B-PER",
-    2: "B-WEAPON",
-    3: "B_LOC",
-    4: "B_ORG"
+    0: "B-WEAPON",
+    4: "B_LOC",
+    3: "B_ORG"
 }
 
 print(id_to_label)
-
 # List of Sanskrit sentences to test
 sanskrit_sentences = [
-    "उत्र शुराः महाइषुआसाः भीमअर्जुनसमाः युधि ।"
+    "अयोध्यायां दशरथः राजा सत्यवादी धर्मात्मा।"
 ]
 
 def predict_with_adjusted_threshold(logits, per_threshold=3.5, loc_threshold=3.5):
     predictions = []
     for token_logits in logits:
         # Check for B-PER (index 1)
-        per_condition = (token_logits[0] - token_logits[1] < per_threshold and 
-                        token_logits[1] > 0 and
-                        token_logits[1] > token_logits[2] and 
-                        token_logits[1] > token_logits[3] and 
-                        token_logits[1] > token_logits[4])
+        per_condition = (token_logits[label_to_id['O']] - token_logits[label_to_id['B-PER']] < per_threshold and 
+                        token_logits[label_to_id['B-PER']] > 0 and
+                        token_logits[label_to_id['B-PER']] > token_logits[label_to_id['B-LOC']] and 
+                        token_logits[label_to_id['B-PER']] > token_logits[label_to_id['B-ORG']] and 
+                        token_logits[label_to_id['B-PER']] > token_logits[label_to_id['B-WEAPON']])
         
         # Check for B-LOC (index 3)
         loc_condition = (token_logits[0] - token_logits[3] < loc_threshold and 
@@ -49,7 +48,7 @@ def predict_with_adjusted_threshold(logits, per_threshold=3.5, loc_threshold=3.5
     
     return predictions
 
-def predict_ner(sentences, use_threshold=True, threshold_value=3.5):
+def predict_ner(sentences, use_threshold=True, threshold_value=4.5):
     model.eval()
 
     for sentence in sentences:
@@ -70,7 +69,7 @@ def predict_ner(sentences, use_threshold=True, threshold_value=3.5):
 
         # Apply different prediction methods based on parameters
         if use_threshold:
-            predictions = predict_with_adjusted_threshold(logits, per_threshold=3.5, loc_threshold=3.5)           
+            predictions = predict_with_adjusted_threshold(logits, per_threshold=4.0, loc_threshold=3.5)           
         else:
             # Standard prediction (argmax)
             predictions = torch.argmax(logits, dim=1).tolist()
@@ -103,4 +102,4 @@ print("\n Standard Prediction (No Adjustments)")
 predict_ner(sanskrit_sentences, use_threshold=False)
 
 print("\n Threshold-Adjusted Prediction")
-predict_ner(sanskrit_sentences, use_threshold=True, threshold_value=3.5)
+predict_ner(sanskrit_sentences, use_threshold=True, threshold_value=4.5)

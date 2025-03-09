@@ -142,3 +142,11 @@ print("Evaluation Results:", eval_results)
 # Save model
 model.save_pretrained("./fine_tuned_xlm_roberta")
 tokenizer.save_pretrained("./fine_tuned_xlm_roberta")
+
+print("Label to ID mapping:")
+for label, idx in label_to_id.items():
+    print(f"{label}: {idx}")
+
+print("\nID to Label mapping:")
+for idx, label in id_to_label.items():
+    print(f"{idx}: {label}")
