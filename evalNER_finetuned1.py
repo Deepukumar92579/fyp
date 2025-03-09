@@ -17,6 +17,9 @@ id_to_label = {
 }
 
 print(id_to_label)
+
+label_to_id = {v: k for k, v in id_to_label.items()} #no need to define here, get it from the model
+
 # List of Sanskrit sentences to test
 sanskrit_sentences = [
     "अयोध्यायां दशरथः राजा सत्यवादी धर्मात्मा।"

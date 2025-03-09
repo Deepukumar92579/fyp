@@ -17,6 +17,8 @@ id_to_label = {
     3: "B_ORG"
 }
 
+label_to_id = {v: k for k, v in id_to_label.items()} #no need to define here, get it from the model
+
 print(id_to_label)
 
 def read_sanskrit_sentences_from_xlsx(file_path, column_name, num_samples=None):

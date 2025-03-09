@@ -14,7 +14,7 @@ from transformers import (
     Trainer,
 )
 from datasets import Dataset, DatasetDict
-import evaluate
+import evaluate # type: ignore
 
 # Load dataset from JSON file
 file_path = "./sanskrit_ner_bio.json"
